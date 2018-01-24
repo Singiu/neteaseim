@@ -42,7 +42,7 @@ trait UserAPI
             'headers' => $this->getHttpHeaders(),
             'data' => $data
         ]);
-        return $this->getResult($response, 'code');
+        return $this->getResult($response);
     }
 
     /**
@@ -79,11 +79,12 @@ trait UserAPI
             'headers' => $this->getHttpHeaders(),
             'data' => $data
         ]);
-        return $this->getResult($reponse, 'code');
+        return $this->getResult($reponse);
     }
 
     /**
      * 解禁网易云通信ID。
+     *
      * @param $accId
      * @throws \Exception
      */
@@ -93,7 +94,7 @@ trait UserAPI
             'headers' => $this->getHttpHeaders(),
             'data' => ['accid' => $accId]
         ]);
-        $this->getResult($response, 'code');
+        $this->getResult($response);
     }
 
     /**
@@ -139,11 +140,11 @@ trait UserAPI
     {
         $data['accid'] = $accId;
         $fillable = ['accid', 'name', 'icon', 'sign', 'email', 'birth', 'mobile', 'gender', 'ex'];
-        $data = array_intersect_key(array_reverse($fillable), $data);
+        $data = array_intersect_key($data, array_flip($fillable));
         $response = $this->http->post('user/updateUinfo.action', [
             'headers' => $this->getHttpHeaders(),
             'data' => $data
         ]);
-        return $this->getResult($response, 'code');
+        return $this->getResult($response);
     }
 }
