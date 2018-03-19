@@ -5,7 +5,7 @@ namespace Singiu\Netease\Traits;
 /**
  * 网易云通信ID及用户相关的API操作。
  *
- * @property-read \Singiu\Netease\Http\Request http;
+ * @property-read \Singiu\Http\Request http;
  */
 trait UserAPI
 {

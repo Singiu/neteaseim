@@ -2,8 +2,8 @@
 
 namespace Singiu\Netease;
 
-use Singiu\Netease\Http\Request;
-use Singiu\Netease\Http\Response;
+use Singiu\Http\Request;
+use Singiu\Http\Response;
 use Singiu\Netease\Traits\UserAPI;
 
 class NeteaseIM
