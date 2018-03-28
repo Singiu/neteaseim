@@ -16,7 +16,7 @@
     "require": {
         "php": ">=5.2.0",
         "paragonie/random_compat": "^2.0",
-        "singiu/http-php": "^0.1.0"
+        "singiu/http-php": "^1.0.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^5.7"
