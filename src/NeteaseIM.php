@@ -2,16 +2,20 @@
 
 namespace Singiu\Netease;
 
+use Singiu\Http\Http;
 use Singiu\Http\Request;
 use Singiu\Http\Response;
+use Singiu\Netease\Traits\MessageAPI;
 use Singiu\Netease\Traits\UserAPI;
 
 class NeteaseIM
 {
     use UserAPI;
-    protected $appKey;
-    protected $appSecret;
-    protected $http;
+    use MessageAPI;
+    protected $_appKey;
+    protected $_appSecret;
+    protected $_http;
+    protected $_errorCode;
 
     /**
      * 构造函数。
@@ -21,9 +25,10 @@ class NeteaseIM
      */
     public function __construct($appKey, $appSecret)
     {
-        $this->appKey = $appKey;
-        $this->appSecret = $appSecret;
-        $this->http = new Request(['base_uri' => 'https://api.netease.im/nimserver']);
+        $this->_appKey = $appKey;
+        $this->_appSecret = $appSecret;
+        $this->_http = new Request('https://api.netease.im/nimserver');
+        $this->_http->setHttpVersion(Http::HTTP_VERSION_1_1);
     }
 
     /**
@@ -33,12 +38,12 @@ class NeteaseIM
      * @param $key
      * @return null
      */
-    protected function getResult(Response $response, $key = null)
+    protected function _getResult(Response $response, $key = null)
     {
-        $responseJson = $response->getResponseJson();
-        return $key != null && $key != '' && array_key_exists($key, $responseJson)
-            ? $responseJson[$key]
-            : $responseJson;
+        $responseArray = $response->getResponseArray();
+        return $key != null && $key != '' && is_array($responseArray) && array_key_exists($key, $responseArray)
+            ? $responseArray[$key]
+            : $responseArray;
     }
 
     /**
@@ -47,11 +52,13 @@ class NeteaseIM
      * @param $code
      * @return string
      */
-    protected function getError($code)
+    protected function _getError($code)
     {
-        $error_code = require(__DIR__ . '/ErrorCode.php');
-        if (array_key_exists($code, $error_code)) {
-            return $error_code[$code];
+        if ($this->_errorCode == null) {
+            $this->_errorCode = require(__DIR__ . '/ErrorCode.php');
+        }
+        if (array_key_exists($code, $this->_errorCode)) {
+            return $this->_errorCode[$code];
         }
         return '';
     }
@@ -62,14 +69,14 @@ class NeteaseIM
      * @return array
      * @throws \Exception
      */
-    protected function getHttpHeaders()
+    protected function _getHttpHeaders()
     {
         $curTime = time();
-        $nonce = $this->str_random(32);
-        $appSecret = $this->appSecret;
+        $nonce = $this->_strRandom(32);
+        $appSecret = $this->_appSecret;
         $checkSum = sha1($appSecret . $nonce . $curTime);
         $header = [
-            'AppKey' => $this->appKey,
+            'AppKey' => $this->_appKey,
             'Nonce' => $nonce,
             'CurTime' => $curTime,
             'CheckSum' => $checkSum,
@@ -85,7 +92,7 @@ class NeteaseIM
      * @return string
      * @throws \Exception
      */
-    protected function str_random($length = 16)
+    protected function _strRandom($length = 16)
     {
         $string = '';
         while (($len = strlen($string)) < $length) {
@@ -94,5 +101,22 @@ class NeteaseIM
             $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
         }
         return $string;
+    }
+
+    /**
+     * 因为网易的接口都是使用 post 方法发送，所以这里做一个统一的发送方法。
+     *
+     * @param $uri
+     * @param $data
+     * @return Response
+     * @throws \Exception
+     */
+    protected function _action($uri, $data)
+    {
+        $post_data = [
+            'headers' => $this->_getHttpHeaders(),
+            'data' => $data
+        ];
+        return $this->_http->post($uri, $post_data);
     }
 }

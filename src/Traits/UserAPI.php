@@ -5,7 +5,7 @@ namespace Singiu\Netease\Traits;
 /**
  * 网易云通信ID及用户相关的API操作。
  *
- * @property-read \Singiu\Http\Request http;
+ * @property-read \Singiu\Http\Request $_http;
  */
 trait UserAPI
 {
@@ -20,15 +20,12 @@ trait UserAPI
     public function create($accId, Array $postData)
     {
         $postData['accid'] = $accId;
-        $response = $this->http->post('user/create.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => $postData
-        ]);
-        return $this->getResult($response, 'info');
+        $response = $this->_action('user/create.action', $postData);
+        return $this->_getResult($response, 'info');
     }
 
     /**
-     * 更新云通信ID信息。
+     * 更新云通信 ID 信息。
      *
      * @param $accId
      * @param array $data 只支持 prop（自定义数据JSON） 和 token（类似密码）这两个字段。
@@ -38,11 +35,8 @@ trait UserAPI
     public function update($accId, Array $data)
     {
         $data['accid'] = $accId;
-        $response = $this->http->post('user/update.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => $data
-        ]);
-        return $this->getResult($response);
+        $response = $this->_action('user/update.action', $data);
+        return $this->_getResult($response);
     }
 
     /**
@@ -54,15 +48,12 @@ trait UserAPI
      */
     public function refreshToken($accId)
     {
-        $response = $this->http->post('user/refreshToken.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => ['accid' => $accId]
-        ]);
-        return $this->getResult($response, 'info');
+        $response = $this->_action('user/refreshToken.action', ['accid' => $accId]);
+        return $this->_getResult($response, 'info');
     }
 
     /**
-     * 禁用网易云通信ID。
+     * 禁用网易云通信 ID。
      *
      * @param $accId
      * @param bool $needkick
@@ -75,26 +66,20 @@ trait UserAPI
             'accid' => $accId,
             'needkick' => $needkick ? 'true' : 'false'
         ];
-        $reponse = $this->http->post('user/block.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => $data
-        ]);
-        return $this->getResult($reponse);
+        $reponse = $this->_action('user/block.action', $data);
+        return $this->_getResult($reponse);
     }
 
     /**
-     * 解禁网易云通信ID。
+     * 解禁网易云通信 ID。
      *
      * @param $accId
      * @throws \Exception
      */
     public function unblock($accId)
     {
-        $response = $this->http->post('user/unblock.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => ['accid' => $accId]
-        ]);
-        $this->getResult($response);
+        $response = $this->_action('user/unblock.action', ['accid' => $accId]);
+        $this->_getResult($response);
     }
 
     /**
@@ -107,9 +92,7 @@ trait UserAPI
     public function getUserInfo($accId)
     {
         $userInfos = $this->getUserInfos([$accId]);
-        if (is_array($userInfos) && count($userInfos) > 0)
-            return $userInfos[0];
-        else return $userInfos;
+        return is_array($userInfos) && count($userInfos) > 0 ? $userInfos[0] : $userInfos;
     }
 
     /**
@@ -121,11 +104,8 @@ trait UserAPI
      */
     public function getUserInfos(Array $accIds)
     {
-        $response = $this->http->post('user/getUinfos.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => ['accids' => json_encode($accIds)]
-        ]);
-        return $this->getResult($response, 'uinfos');
+        $response = $this->_action('user/getUinfos.action', ['accids' => json_encode($accIds, JSON_UNESCAPED_UNICODE)]);
+        return $this->_getResult($response, 'uinfos');
     }
 
     /**
@@ -141,10 +121,7 @@ trait UserAPI
         $data['accid'] = $accId;
         $fillable = ['accid', 'name', 'icon', 'sign', 'email', 'birth', 'mobile', 'gender', 'ex'];
         $data = array_intersect_key($data, array_flip($fillable));
-        $response = $this->http->post('user/updateUinfo.action', [
-            'headers' => $this->getHttpHeaders(),
-            'data' => $data
-        ]);
-        return $this->getResult($response);
+        $response = $this->_action('user/updateUinfo.action', $data);
+        return $this->_getResult($response);
     }
 }
