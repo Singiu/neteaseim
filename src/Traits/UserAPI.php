@@ -91,7 +91,7 @@ trait UserAPI
      */
     public function getUserInfo($accId)
     {
-        $userInfos = $this->getUserInfos([$accId]);
+        $userInfos = $this->getUsersInfo([$accId]);
         return is_array($userInfos) && count($userInfos) > 0 ? $userInfos[0] : $userInfos;
     }
 
@@ -102,7 +102,7 @@ trait UserAPI
      * @return mixed
      * @throws \Exception
      */
-    public function getUserInfos(Array $accIds)
+    public function getUsersInfo(Array $accIds)
     {
         $response = $this->_action('user/getUinfos.action', ['accids' => json_encode($accIds, JSON_UNESCAPED_UNICODE)]);
         return $this->_getResult($response, 'uinfos');
