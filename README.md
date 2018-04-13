@@ -7,11 +7,11 @@
 
 只封装了部分接口（其实就是我项目中使用到的接口），所以下载使用前请务必先详细阅读此文档，看看有没有你想要的功能。（当然你也可以自己补充你自己的需求，源码灰常简单的，欢迎发起 Pull request 帮助完善哦 :smirk: ）
 
-如果没有你想要的功能，可以在 Issue 上发起需求，我会尽量满足。
+如果没有你想要的功能，可以在 Issue 上发起需求，我会尽量满足，谢谢支持 :bow:
 
 ## 安装
 ```bash
-composer require singiu/neteaseim "dev-master as ^1.0.0-dev"
+composer require singiu/neteaseim
 ```
 
 ## 使用
