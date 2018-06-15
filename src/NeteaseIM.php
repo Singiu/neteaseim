@@ -5,6 +5,7 @@ namespace Singiu\Netease;
 use Singiu\Http\Http;
 use Singiu\Http\Request;
 use Singiu\Http\Response;
+use Singiu\Netease\Traits\FriendAPI;
 use Singiu\Netease\Traits\MessageAPI;
 use Singiu\Netease\Traits\UserAPI;
 
@@ -12,6 +13,8 @@ class NeteaseIM
 {
     use UserAPI;
     use MessageAPI;
+    use FriendAPI;
+
     protected $_appKey;
     protected $_appSecret;
     protected $_http;
@@ -32,18 +35,20 @@ class NeteaseIM
     }
 
     /**
-     * 处理请求响应数据。
+     * 因为网易的接口都是使用 post 方法发送，所以这里做一个统一的发送方法。
      *
-     * @param $response
-     * @param $key
-     * @return null
+     * @param $uri
+     * @param $data
+     * @return Response
+     * @throws \Exception
      */
-    protected function _getResult(Response $response, $key = null)
+    protected function _action($uri, $data)
     {
-        $responseArray = $response->getResponseArray();
-        return $key != null && $key != '' && is_array($responseArray) && array_key_exists($key, $responseArray)
-            ? $responseArray[$key]
-            : $responseArray;
+        $post_data = [
+            'headers' => $this->_getHttpHeaders(),
+            'data' => $data
+        ];
+        return $this->_http->post($uri, $post_data);
     }
 
     /**
@@ -86,6 +91,21 @@ class NeteaseIM
     }
 
     /**
+     * 处理请求响应数据。
+     *
+     * @param $response
+     * @param $key
+     * @return null
+     */
+    protected function _getResult(Response $response, $key = null)
+    {
+        $responseArray = $response->getResponseArray();
+        return $key != null && $key != '' && is_array($responseArray) && array_key_exists($key, $responseArray)
+            ? $responseArray[$key]
+            : $responseArray;
+    }
+
+    /**
      * laravel 的随机字串生成函数。
      *
      * @param int $length
@@ -101,22 +121,5 @@ class NeteaseIM
             $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
         }
         return $string;
-    }
-
-    /**
-     * 因为网易的接口都是使用 post 方法发送，所以这里做一个统一的发送方法。
-     *
-     * @param $uri
-     * @param $data
-     * @return Response
-     * @throws \Exception
-     */
-    protected function _action($uri, $data)
-    {
-        $post_data = [
-            'headers' => $this->_getHttpHeaders(),
-            'data' => $data
-        ];
-        return $this->_http->post($uri, $post_data);
     }
 }
